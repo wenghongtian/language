@@ -10,9 +10,9 @@ async function main() {
   const parser = new Parser();
   const env = new Environment();
   {
-    env.declarevar("null", MK_NULL());
-    env.declarevar("true", MK_BOOL(true));
-    env.declarevar("false", MK_BOOL(false));
+    env.declarevar("null", MK_NULL(), true);
+    env.declarevar("true", MK_BOOL(true), true);
+    env.declarevar("false", MK_BOOL(false), true);
   }
   while (true) {
     const { source } = await prompt.get([

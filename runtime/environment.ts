@@ -2,21 +2,35 @@ import { RuntimeVal } from "./values";
 
 export default class Environment {
   private parent?: Environment;
+  private constants: Set<string> = new Set();
   private variables: Map<string, RuntimeVal> = new Map();
   constructor(parentEnv?: Environment) {
     this.parent = parentEnv;
   }
 
-  public declarevar(varname: string, value: RuntimeVal): RuntimeVal {
+  public declarevar(
+    varname: string,
+    value: RuntimeVal,
+    constant: boolean
+  ): RuntimeVal {
     if (this.variables.has(varname)) {
       throw `Cannot declare variable ${varname}. As it already is defined.`;
     }
     this.variables.set(varname, value);
+    if (constant) {
+      this.constants.add(varname);
+    }
     return value;
   }
 
   public assignVar(varname: string, value: RuntimeVal): RuntimeVal {
     const env = this.resolve(varname);
+    if (env.constants.has(varname)) {
+      console.error(
+        `Cannot reasign to variable ${varname} as it was declared existed`
+      );
+      process.exit(0);
+    }
     env.variables.set(varname, value);
     return value;
   }

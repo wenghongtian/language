@@ -10,6 +10,7 @@ export enum TokenType {
   BinaryOperator,
   Let,
   Const,
+  Semicolon,
   EOF,
 }
 
@@ -50,7 +51,9 @@ export function tokenize(sourceCode: string): Token[] {
       tokens.push(token(src.shift()!, TokenType.OpenParen));
     } else if (src[0] == ")") {
       tokens.push(token(src.shift()!, TokenType.CloseParen));
-    } else if (
+    } else if (src[0] == ";") {
+      tokens.push(token(src.shift()!, TokenType.Semicolon));
+    }else if (
       src[0] == "*" ||
       src[0] == "-" ||
       src[0] == "+" ||

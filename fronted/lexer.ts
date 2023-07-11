@@ -1,16 +1,20 @@
-// let x = 45 + (foo * bar)
-// [Let, Identifier, Equals, Number]
-
 export enum TokenType {
   Number,
   Identifier,
   Equals,
-  OpenParen,
-  CloseParen,
+  OpenParen, //(
+  CloseParen, //)
   BinaryOperator,
   Let,
   Const,
   Semicolon,
+  Colon, //:
+  Comma, //,
+  OpenBrace, //{
+  CloseBrace, //}
+  OpenBracket, //[
+  CloseBracket, //]
+  Dot, //.
   EOF,
 }
 
@@ -33,7 +37,7 @@ function isAlpha(src: string) {
 }
 
 function isSkippable(str: string) {
-  return str == " " || str == "\n" || str == "\t";
+  return str == " " || str == "\n" || str == "\t" || str == "\r";
 }
 
 function isInt(str: string) {
@@ -51,9 +55,23 @@ export function tokenize(sourceCode: string): Token[] {
       tokens.push(token(src.shift()!, TokenType.OpenParen));
     } else if (src[0] == ")") {
       tokens.push(token(src.shift()!, TokenType.CloseParen));
+    } else if (src[0] == "[") {
+      tokens.push(token(src.shift()!, TokenType.OpenBracket));
+    } else if (src[0] == "]") {
+      tokens.push(token(src.shift()!, TokenType.CloseBracket));
+    } else if (src[0] == "{") {
+      tokens.push(token(src.shift()!, TokenType.OpenBrace));
+    } else if (src[0] == ".") {
+      tokens.push(token(src.shift()!, TokenType.Dot));
+    } else if (src[0] == "}") {
+      tokens.push(token(src.shift()!, TokenType.CloseBrace));
     } else if (src[0] == ";") {
       tokens.push(token(src.shift()!, TokenType.Semicolon));
-    }else if (
+    } else if (src[0] == ":") {
+      tokens.push(token(src.shift()!, TokenType.Colon));
+    } else if (src[0] == ",") {
+      tokens.push(token(src.shift()!, TokenType.Comma));
+    } else if (
       src[0] == "*" ||
       src[0] == "-" ||
       src[0] == "+" ||

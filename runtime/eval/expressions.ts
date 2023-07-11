@@ -1,9 +1,24 @@
-import { BinrayExpr, Identifier, VarDeclaration } from "../../fronted/ast";
+import {
+  AssignmentExpr,
+  BinrayExpr,
+  Identifier,
+  ObjectLiteral,
+  VarDeclaration,
+} from "../../fronted/ast";
 import Environment from "../environment";
 import { evaluate } from "../interpreter";
-import { RuntimeVal, NumberVal, MK_NULL, MK_NUMBER } from "../values";
+import {
+  RuntimeVal,
+  NumberVal,
+  MK_NULL,
+  MK_NUMBER,
+  MK_OBJECT,
+} from "../values";
 
-export function evaluateBinaryExpr(binop: BinrayExpr, env: Environment): RuntimeVal {
+export function evaluateBinaryExpr(
+  binop: BinrayExpr,
+  env: Environment
+): RuntimeVal {
   const lhs = evaluate(binop.left, env);
   const rhs = evaluate(binop.right, env);
 
@@ -31,8 +46,39 @@ export function evalNumericBinaryExpr(
   return MK_NUMBER(result);
 }
 
-export function evalIdentifier(ident: Identifier, env: Environment): RuntimeVal {
+export function evalIdentifier(
+  ident: Identifier,
+  env: Environment
+): RuntimeVal {
   const val = env.lookupVar(ident.symbol);
   return val;
 }
 
+export function evalAssignment(
+  node: AssignmentExpr,
+  env: Environment
+): RuntimeVal {
+  if (node.assigne.kind !== "Identifier") {
+    console.error(
+      `Invalid LHS inside assign expr ${JSON.stringify(node.assigne)}.`
+    );
+    process.exit();
+  }
+  const varname = (node.assigne as Identifier).symbol;
+  return env.assignVar(varname, evaluate(node.value, env));
+}
+
+export function evalObjectExpr(
+  obj: ObjectLiteral,
+  env: Environment
+): RuntimeVal {
+  const object = MK_OBJECT();
+  for (const { key, value } of obj.properties) {
+    const runtimeVal =
+      value === undefined ? env.lookupVar(key) : evaluate(value, env);
+
+    object.properties.set(key, runtimeVal);
+  }
+
+  return object;
+}

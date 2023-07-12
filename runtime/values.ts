@@ -1,4 +1,14 @@
-export type ValueType = "null" | "number" | "boolean" | "object" | "string";
+import { Stmt } from "../fronted/ast";
+import Environment from "./environment";
+
+export type ValueType =
+  | "null"
+  | "number"
+  | "boolean"
+  | "object"
+  | "string"
+  | "native-fn"
+  | "function";
 
 export interface RuntimeVal {
   type: ValueType;
@@ -49,4 +59,23 @@ export function MK_STRING(value: string = "") {
     type: "string",
     value,
   } as StringVal;
+}
+
+export type FunctionCall = (args: RuntimeVal[], env: Environment) => RuntimeVal;
+
+export interface NativeFnValue extends RuntimeVal {
+  type: "native-fn";
+  call: FunctionCall;
+}
+
+export function MK_NATIVE_FN(call: FunctionCall) {
+  return { type: "native-fn", call } as NativeFnValue;
+}
+
+export interface Functionvalue extends RuntimeVal {
+  type: "function";
+  name: string;
+  parameters: string[];
+  declarationEnv: Environment;
+  body: Stmt[];
 }

@@ -1,7 +1,11 @@
-import { Program, VarDeclaration } from "../../fronted/ast";
+import {
+  FunctionDeclaration,
+  Program,
+  VarDeclaration,
+} from "../../fronted/ast";
 import Environment from "../environment";
 import { evaluate } from "../interpreter";
-import { RuntimeVal, MK_NULL } from "../values";
+import { RuntimeVal, MK_NULL, Functionvalue } from "../values";
 
 export function evalProgram(program: Program, env: Environment): RuntimeVal {
   let lastEvaluated: RuntimeVal = MK_NULL();
@@ -19,5 +23,19 @@ export function evalVarDeclaration(
   const value = declaration.value
     ? evaluate(declaration.value, env)
     : MK_NULL();
-  return env.declarevar(declaration.identifier, value, declaration.constant);
+  return env.declareVar(declaration.identifier, value, declaration.constant);
+}
+
+export function evalFunctionDeclaration(
+  declaration: FunctionDeclaration,
+  env: Environment
+): RuntimeVal {
+  const fn = {
+    type: "function",
+    name: declaration.name,
+    parameters: declaration.parameters,
+    declarationEnv: env,
+    body: declaration.body,
+  } as Functionvalue;
+  return env.declareVar(declaration.name, fn, true);
 }

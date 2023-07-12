@@ -2,8 +2,8 @@ export type NodeType =
   // statments
   | "Program"
   | "VarDeclaration"
-  // expressions
   | "FunctionDeclaration"
+  // expressions
   | "AssignmentExpr"
   | "MemberExpr"
   | "CallExpr"
@@ -30,6 +30,12 @@ export interface VarDeclaration extends Stmt {
   identifier: string;
   value?: Expr;
 }
+export interface FunctionDeclaration extends Stmt {
+  kind: "FunctionDeclaration";
+  parameters: string[];
+  name: string;
+  body: Stmt[];
+}
 
 export interface Expr extends Stmt {}
 
@@ -47,7 +53,7 @@ export interface BinrayExpr extends Expr {
 }
 export interface CallExpr extends Expr {
   kind: "CallExpr";
-  args: Expr[]
+  args: Expr[];
   caller: Expr;
 }
 export interface MemberExpr extends Expr {
@@ -79,6 +85,6 @@ export interface ObjectLiteral extends Expr {
 }
 
 export interface StringLiteral extends Expr {
-  kind: "StringLiteral",
+  kind: "StringLiteral";
   value: string;
 }

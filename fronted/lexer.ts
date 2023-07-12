@@ -6,6 +6,7 @@ export enum TokenType {
   CloseParen, //)
   BinaryOperator,
   Let,
+  Fn,
   Const,
   Semicolon,
   Colon, //:
@@ -22,6 +23,7 @@ export enum TokenType {
 const KEYWORDS: Record<string, TokenType> = {
   let: TokenType.Let,
   const: TokenType.Const,
+  fn: TokenType.Fn,
 };
 
 export interface Token {
@@ -107,6 +109,7 @@ export function tokenize(sourceCode: string): Token[] {
         src.shift();
       } else {
         console.log("Unreconized character found in source: ", src[0]);
+        process.exit(0);
       }
     }
   }

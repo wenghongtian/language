@@ -1,9 +1,18 @@
-import { MK_BOOL, MK_NULL, RuntimeVal } from "./values";
+import { MK_BOOL, MK_NATIVE_FN, MK_NULL, RuntimeVal } from "./values";
 
 function setupScope(env: Environment) {
-  env.declarevar("null", MK_NULL(), true);
-  env.declarevar("true", MK_BOOL(true), true);
-  env.declarevar("false", MK_BOOL(false), true);
+  env.declareVar("null", MK_NULL(), true);
+  env.declareVar("true", MK_BOOL(true), true);
+  env.declareVar("false", MK_BOOL(false), true);
+
+  env.declareVar(
+    "print",
+    MK_NATIVE_FN((args, scope) => {
+      console.log(...args);
+      return MK_NULL();
+    }),
+    true
+  );
 }
 
 export default class Environment {
@@ -18,7 +27,7 @@ export default class Environment {
     }
   }
 
-  public declarevar(
+  public declareVar(
     varname: string,
     value: RuntimeVal,
     constant: boolean

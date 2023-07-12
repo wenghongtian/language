@@ -1,6 +1,7 @@
 import {
   AssignmentExpr,
   BinrayExpr,
+  CallExpr,
   Identifier,
   ObjectLiteral,
   VarDeclaration,
@@ -15,6 +16,8 @@ import {
   MK_OBJECT,
   StringVal,
   MK_STRING,
+  NativeFnValue,
+  Functionvalue as FunctionValue,
 } from "../values";
 
 export function evaluateBinaryExpr(
@@ -94,4 +97,31 @@ export function evalObjectExpr(
   }
 
   return object;
+}
+
+export function evalCallExpr(expr: CallExpr, env: Environment): RuntimeVal {
+  const args = expr.args.map((arg) => evaluate(arg, env));
+  const fn = evaluate(expr.caller, env);
+  if ((fn.type == "native-fn")) {
+    let result = (fn as NativeFnValue).call(args, env);
+    return result;
+  } else if (fn.type === "function") {
+    const func = fn as FunctionValue;
+    const scope = new Environment(func.declarationEnv);
+
+    func.parameters.forEach((varname, index) => {
+      scope.declareVar(varname, args[index], false);
+    });
+
+    let result: RuntimeVal = MK_NULL();
+    for (const stmt of func.body) {
+      result = evaluate(stmt, scope);
+    }
+    return result;
+  }
+  console.error(
+    "Cannot call value that is not a function:",
+    JSON.stringify(fn)
+  );
+  process.exit(0);
 }

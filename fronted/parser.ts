@@ -12,6 +12,7 @@ import {
   CallExpr,
   MemberExpr,
   StringLiteral,
+  FunctionDeclaration,
 } from "./ast";
 import { Token, TokenType, tokenize } from "./lexer";
 
@@ -41,10 +42,54 @@ export default class Parser {
       case TokenType.Let:
       case TokenType.Const:
         return this.parseVarDeclaration();
+      case TokenType.Fn:
+        return this.parseFunctionDeclaration();
       default:
         return this.parseExpr();
     }
   }
+
+  private parseFunctionDeclaration(): Stmt {
+    this.eat();
+    const name = this.expect(
+      TokenType.Identifier,
+      "Expected function name following fn keyword"
+    ).value;
+    const args = this.parseArgs();
+    const params: string[] = [];
+    for (const arg of args) {
+      if (arg.kind !== "Identifier") {
+        console.error(
+          "Inside function declaration expected paramters to be of type string."
+        );
+        process.exit(0);
+      }
+      params.push((arg as Identifier).symbol);
+    }
+    this.expect(
+      TokenType.OpenBrace,
+      "Expected function body following declaration."
+    );
+    const body: Stmt[] = [];
+    while (
+      this.at().type !== TokenType.EOF &&
+      this.at().type != TokenType.CloseBrace
+    ) {
+      body.push(this.parseStmt());
+    }
+    this.expect(
+      TokenType.CloseBrace,
+      "Closing brace expected inside function declaration."
+    );
+    const fn: FunctionDeclaration = {
+      body,
+      name,
+      parameters: params,
+      kind: "FunctionDeclaration",
+    };
+    return fn;
+  }
+
   private parseVarDeclaration(): Stmt {
     const isConstant = this.eat().type === TokenType.Const;
     const identifier = this.expect(

@@ -1,6 +1,8 @@
 import {
   AssignmentExpr,
   BinrayExpr,
+  CallExpr,
+  FunctionDeclaration,
   Identifier,
   NumbericLiteral,
   ObjectLiteral,
@@ -12,11 +14,16 @@ import {
 import Environment from "./environment";
 import {
   evalAssignment,
+  evalCallExpr,
   evalIdentifier,
   evalObjectExpr,
   evaluateBinaryExpr,
 } from "./eval/expressions";
-import { evalProgram, evalVarDeclaration } from "./eval/statements";
+import {
+  evalFunctionDeclaration,
+  evalProgram,
+  evalVarDeclaration,
+} from "./eval/statements";
 import {
   MK_NULL,
   MK_NUMBER,
@@ -36,12 +43,16 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
       return evalIdentifier(astNode as Identifier, env);
     case "ObjectLiteral":
       return evalObjectExpr(astNode as ObjectLiteral, env);
+    case "CallExpr":
+      return evalCallExpr(astNode as CallExpr, env);
     case "BinrayExpr":
       return evaluateBinaryExpr(astNode as BinrayExpr, env);
     case "Program":
       return evalProgram(astNode as Program, env);
     case "VarDeclaration":
       return evalVarDeclaration(astNode as VarDeclaration, env);
+    case "FunctionDeclaration":
+      return evalFunctionDeclaration(astNode as FunctionDeclaration, env);
     case "AssignmentExpr":
       return evalAssignment(astNode as AssignmentExpr, env);
     default:

@@ -1,4 +1,9 @@
-let myKey = "x";
-let youKey = "y";
-let key = myKey + youKey;
-key
+fn foo() {
+  print("abc")
+}
+
+let obj = {
+  foo
+}
+
+obj.foo()

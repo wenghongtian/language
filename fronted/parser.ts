@@ -11,6 +11,7 @@ import {
   ObjectLiteral,
   CallExpr,
   MemberExpr,
+  StringLiteral,
 } from "./ast";
 import { Token, TokenType, tokenize } from "./lexer";
 
@@ -254,6 +255,15 @@ export default class Parser {
     return object;
   }
 
+  parseString(): string {
+    let str = "";
+    while (this.at().type != TokenType.DoubleQuotes) {
+      str += this.eat().value;
+    }
+    this.eat();
+    return str;
+  }
+
   /**
    * Orders
    * Assignment
@@ -276,6 +286,12 @@ export default class Parser {
           kind: "NumbericLiteral",
           value: parseFloat(this.eat().value),
         } as NumbericLiteral;
+      case TokenType.DoubleQuotes:
+        this.eat();
+        return {
+          kind: "StringLiteral",
+          value: this.parseString(),
+        } as StringLiteral;
       case TokenType.OpenParen:
         this.eat();
         const value = this.parseExpr();

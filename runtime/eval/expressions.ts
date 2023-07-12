@@ -13,6 +13,8 @@ import {
   MK_NULL,
   MK_NUMBER,
   MK_OBJECT,
+  StringVal,
+  MK_STRING,
 } from "../values";
 
 export function evaluateBinaryExpr(
@@ -29,6 +31,13 @@ export function evaluateBinaryExpr(
       binop.operator
     );
   }
+  if (
+    lhs.type === "string" &&
+    rhs.type === "string" &&
+    binop.operator === "+"
+  ) {
+    return evalStringAddExpr(lhs as StringVal, rhs as StringVal);
+  }
   return MK_NULL();
 }
 
@@ -44,6 +53,10 @@ export function evalNumericBinaryExpr(
   else if (operator == "/") result = lhs.value / rhs.value;
   else result = lhs.value % rhs.value;
   return MK_NUMBER(result);
+}
+
+export function evalStringAddExpr(lhs: StringVal, rhs: StringVal) {
+  return MK_STRING(lhs.value + rhs.value);
 }
 
 export function evalIdentifier(

@@ -15,6 +15,7 @@ export enum TokenType {
   OpenBracket, //[
   CloseBracket, //]
   Dot, //.
+  DoubleQuotes, // "
   EOF,
 }
 
@@ -57,8 +58,10 @@ export function tokenize(sourceCode: string): Token[] {
       tokens.push(token(src.shift()!, TokenType.CloseParen));
     } else if (src[0] == "[") {
       tokens.push(token(src.shift()!, TokenType.OpenBracket));
-    } else if (src[0] == "]") {
-      tokens.push(token(src.shift()!, TokenType.CloseBracket));
+    } else if (src[0] == "[") {
+      tokens.push(token(src.shift()!, TokenType.OpenBracket));
+    } else if (src[0] == '"') {
+      tokens.push(token(src.shift()!, TokenType.DoubleQuotes));
     } else if (src[0] == "{") {
       tokens.push(token(src.shift()!, TokenType.OpenBrace));
     } else if (src[0] == ".") {

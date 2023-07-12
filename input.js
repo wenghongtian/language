@@ -1,2 +1,3 @@
-let foo = {x: 1, y: {k: 2}};
-foo.y.k
+let myKey = "x";
+let youKey = "y";
+let key = myKey + youKey;

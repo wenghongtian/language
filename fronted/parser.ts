@@ -104,12 +104,12 @@ export default class Parser {
   }
 
   private parseObjectExpr(): Expr {
-    if (this.at().type !== TokenType.OpenBracket) {
+    if (this.at().type !== TokenType.OpenBrace) {
       return this.parseAdditiveExpr();
     }
     this.eat();
     const properties = new Array<Property>();
-    while (this.notEOF() && this.at().type !== TokenType.CloseBracket) {
+    while (this.notEOF() && this.at().type !== TokenType.CloseBrace) {
       let key = this.expect(
         TokenType.Identifier,
         "Object literal key expected"
@@ -121,7 +121,7 @@ export default class Parser {
           kind: "Property",
         } as Property);
         continue;
-      } else if (this.at().type === TokenType.CloseBracket) {
+      } else if (this.at().type === TokenType.CloseBrace) {
         properties.push({ key, kind: "Property" } as Property);
         continue;
       }
@@ -131,17 +131,14 @@ export default class Parser {
       );
       const value = this.parseExpr();
       properties.push({ kind: "Property", value, key } as Property);
-      if (this.at().type != TokenType.CloseBracket) {
+      if (this.at().type != TokenType.CloseBrace) {
         this.expect(
           TokenType.Comma,
           "Expected comma or closing bracket following property"
         );
       }
     }
-    this.expect(
-      TokenType.CloseBracket,
-      "Object literal missing closing brace."
-    );
+    this.expect(TokenType.CloseBrace, "Object literal missing closing brace.");
     return { kind: "ObjectLiteral", properties } as ObjectLiteral;
   }
 
@@ -238,14 +235,14 @@ export default class Parser {
             "Cannot use dot operator without right handl side being a identifier."
           );
           process.exit(0);
-        } else {
-          computed = true;
-          property = this.parseExpr();
-          this.expect(
-            TokenType.CloseBracket,
-            "Missing closing bracket in computed value."
-          );
         }
+      } else {
+        computed = true;
+        property = this.parseExpr();
+        this.expect(
+          TokenType.CloseBracket,
+          "Missing closing bracket in computed value."
+        );
       }
       object = {
         kind: "MemberExpr",

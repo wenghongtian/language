@@ -4,8 +4,6 @@ import { evaluate } from "./runtime/interpreter";
 import Environment from "./runtime/environment";
 import { readFileSync } from "fs";
 
-// prompt.start();
-
 async function run() {
   const parser = new Parser();
   const env = new Environment();
@@ -16,6 +14,7 @@ async function run() {
 }
 
 async function main() {
+  prompt.start();
   const parser = new Parser();
   const env = new Environment();
 

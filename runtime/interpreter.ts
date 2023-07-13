@@ -4,6 +4,7 @@ import {
   CallExpr,
   FunctionDeclaration,
   Identifier,
+  MemberExpr,
   NumbericLiteral,
   ObjectLiteral,
   Program,
@@ -16,6 +17,7 @@ import {
   evalAssignment,
   evalCallExpr,
   evalIdentifier,
+  evalMemberExpr,
   evalObjectExpr,
   evaluateBinaryExpr,
 } from "./eval/expressions";
@@ -55,6 +57,8 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
       return evalFunctionDeclaration(astNode as FunctionDeclaration, env);
     case "AssignmentExpr":
       return evalAssignment(astNode as AssignmentExpr, env);
+    case "MemberExpr":
+      return evalMemberExpr(astNode as MemberExpr, env);
     default:
       console.error(
         "This AST Node has not yet been setup for interpretation.",

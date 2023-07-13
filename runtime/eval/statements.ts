@@ -5,7 +5,7 @@ import {
 } from "../../fronted/ast";
 import Environment from "../environment";
 import { evaluate } from "../interpreter";
-import { RuntimeVal, MK_NULL, Functionvalue } from "../values";
+import { RuntimeVal, MK_NULL, FunctionValue } from "../values";
 
 export function evalProgram(program: Program, env: Environment): RuntimeVal {
   let lastEvaluated: RuntimeVal = MK_NULL();
@@ -36,6 +36,6 @@ export function evalFunctionDeclaration(
     parameters: declaration.parameters,
     declarationEnv: env,
     body: declaration.body,
-  } as Functionvalue;
+  } as FunctionValue;
   return env.declareVar(declaration.name, fn, true);
 }

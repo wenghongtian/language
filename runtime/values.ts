@@ -8,7 +8,7 @@ export type ValueType =
   | "object"
   | "string"
   | "native-fn"
-  | "function";
+  | "function"
 
 export interface RuntimeVal {
   type: ValueType;
@@ -72,7 +72,7 @@ export function MK_NATIVE_FN(call: FunctionCall) {
   return { type: "native-fn", call } as NativeFnValue;
 }
 
-export interface Functionvalue extends RuntimeVal {
+export interface FunctionValue extends RuntimeVal {
   type: "function";
   name: string;
   parameters: string[];

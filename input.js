@@ -1,9 +1,7 @@
-fn foo() {
-  print("abc")
+fn add(){
+  print("ok")
 }
 
-let obj = {
-  foo
-}
+let foo = { x: add };
 
-obj.foo()
+foo.x()

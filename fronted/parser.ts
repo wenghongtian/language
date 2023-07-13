@@ -138,12 +138,6 @@ export default class Parser {
     if (this.at().type === TokenType.Equals) {
       this.eat();
       const value = this.parseAssignmentExpr();
-      if (value.kind !== "AssignmentExpr") {
-        this.expect(
-          TokenType.Semicolon,
-          "Assignment expression must end with semicolon."
-        );
-      }
       return { value, assigne: left, kind: "AssignmentExpr" } as AssignmentExpr;
     }
     return left;

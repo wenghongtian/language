@@ -3,6 +3,7 @@ import {
   BinrayExpr,
   CallExpr,
   Identifier,
+  MemberExpr,
   ObjectLiteral,
   VarDeclaration,
 } from "../../fronted/ast";
@@ -17,7 +18,8 @@ import {
   StringVal,
   MK_STRING,
   NativeFnValue,
-  Functionvalue as FunctionValue,
+  FunctionValue as FunctionValue,
+  ObjectVal,
 } from "../values";
 
 export function evaluateBinaryExpr(
@@ -102,7 +104,7 @@ export function evalObjectExpr(
 export function evalCallExpr(expr: CallExpr, env: Environment): RuntimeVal {
   const args = expr.args.map((arg) => evaluate(arg, env));
   const fn = evaluate(expr.caller, env);
-  if ((fn.type == "native-fn")) {
+  if (fn.type == "native-fn") {
     let result = (fn as NativeFnValue).call(args, env);
     return result;
   } else if (fn.type === "function") {
@@ -124,4 +126,39 @@ export function evalCallExpr(expr: CallExpr, env: Environment): RuntimeVal {
     JSON.stringify(fn)
   );
   process.exit(0);
+}
+
+export function evalMemberExpr(expr: MemberExpr, env: Environment): RuntimeVal {
+  if (expr.object.kind === "Identifier") {
+    const object = env.lookupVar(
+      (expr.object as Identifier).symbol
+    ) as ObjectVal;
+    const property = expr.computed
+      ? evaluate(expr.property, env)
+      : MK_STRING((expr.property as Identifier).symbol);
+    if (property.type !== "string") {
+      console.error(`Object expected string as key, but got `, property);
+      process.exit(0);
+    }
+    return object.properties.get((property as StringVal).value) || MK_NULL();
+  }
+  const object = evalMemberExpr(expr.object as MemberExpr, env);
+
+  const property = expr.computed
+    ? evaluate(expr.property, env)
+    : MK_STRING((expr.property as Identifier).symbol);
+
+  if (property.type !== "string") {
+    console.error(`Object expected string as key, but got `, property);
+    process.exit(0);
+  }
+  if (object.type !== "object") {
+    console.error(`Cannot get ${(property as StringVal).value} from `, object);
+    process.exit(0);
+  }
+  const value =
+    (object as ObjectVal).properties.get((property as StringVal).value) ||
+    MK_NULL();
+
+  return value;
 }

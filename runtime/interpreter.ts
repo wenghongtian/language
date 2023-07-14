@@ -1,4 +1,5 @@
 import {
+  ArrayExpr,
   AssignmentExpr,
   BinrayExpr,
   CallExpr,
@@ -14,6 +15,7 @@ import {
 } from "../fronted/ast";
 import Environment from "./environment";
 import {
+  evalArrayExpr,
   evalAssignment,
   evalCallExpr,
   evalIdentifier,
@@ -59,6 +61,8 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
       return evalAssignment(astNode as AssignmentExpr, env);
     case "MemberExpr":
       return evalMemberExpr(astNode as MemberExpr, env);
+    case "ArrayExpr":
+      return evalArrayExpr(astNode as ArrayExpr, env);
     default:
       console.error(
         "This AST Node has not yet been setup for interpretation.",

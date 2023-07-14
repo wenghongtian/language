@@ -35,4 +35,5 @@ async function main() {
   }
 }
 
-run();
+// run();
+main()

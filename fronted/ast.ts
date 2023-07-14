@@ -9,6 +9,7 @@ export type NodeType =
   | "CallExpr"
   // literals
   | "Property"
+  | "ArrayExpr"
   | "ObjectLiteral"
   | "NumbericLiteral"
   | "Identifier"
@@ -87,4 +88,9 @@ export interface ObjectLiteral extends Expr {
 export interface StringLiteral extends Expr {
   kind: "StringLiteral";
   value: string;
+}
+
+export interface ArrayExpr extends Expr {
+  kind: "ArrayExpr";
+  elements: Expr[];
 }

@@ -9,6 +9,7 @@ export type ValueType =
   | "string"
   | "native-fn"
   | "function"
+  | "array";
 
 export interface RuntimeVal {
   type: ValueType;
@@ -78,4 +79,16 @@ export interface FunctionValue extends RuntimeVal {
   parameters: string[];
   declarationEnv: Environment;
   body: Stmt[];
+}
+
+export interface ArrayValue extends RuntimeVal {
+  type: "array";
+  elements: RuntimeVal[];
+}
+
+export function MK_ARRAY(elements?: RuntimeVal[]) {
+  return {
+    type: "array",
+    elements: elements || [],
+  } as ArrayValue;
 }

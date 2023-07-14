@@ -1,4 +1,5 @@
 import {
+  ArrayExpr,
   AssignmentExpr,
   BinrayExpr,
   CallExpr,
@@ -20,6 +21,8 @@ import {
   NativeFnValue,
   FunctionValue as FunctionValue,
   ObjectVal,
+  MK_ARRAY,
+  ArrayValue as ArrayVal,
 } from "../values";
 
 export function evaluateBinaryExpr(
@@ -130,23 +133,48 @@ export function evalCallExpr(expr: CallExpr, env: Environment): RuntimeVal {
 
 export function evalMemberExpr(expr: MemberExpr, env: Environment): RuntimeVal {
   if (expr.object.kind === "Identifier") {
-    const object = env.lookupVar(
-      (expr.object as Identifier).symbol
-    ) as ObjectVal;
+    const object = env.lookupVar((expr.object as Identifier).symbol);
     const property = expr.computed
       ? evaluate(expr.property, env)
       : MK_STRING((expr.property as Identifier).symbol);
+
+    if (object.type === "array") {
+      if (property.type !== "number") {
+        console.error(`Array expected number as key, but got `, property);
+        process.exit(0);
+      }
+
+      const value =
+        (object as ArrayVal).elements[(property as NumberVal).value] ||
+        MK_NULL();
+
+      return value;
+    }
+
     if (property.type !== "string") {
       console.error(`Object expected string as key, but got `, property);
       process.exit(0);
     }
-    return object.properties.get((property as StringVal).value) || MK_NULL();
+    return (object as ObjectVal).properties.get((property as StringVal).value) || MK_NULL();
   }
   const object = evalMemberExpr(expr.object as MemberExpr, env);
 
   const property = expr.computed
     ? evaluate(expr.property, env)
     : MK_STRING((expr.property as Identifier).symbol);
+
+  if (object.type === "array") {
+    if (property.type !== "number") {
+      console.error(`Array expected number as key, but got `, property);
+      process.exit(0);
+    }
+
+    const value =
+      (object as ArrayVal).elements[(property as NumberVal).value] ||
+      MK_NULL();
+
+    return value;
+  }
 
   if (property.type !== "string") {
     console.error(`Object expected string as key, but got `, property);
@@ -161,4 +189,12 @@ export function evalMemberExpr(expr: MemberExpr, env: Environment): RuntimeVal {
     MK_NULL();
 
   return value;
+}
+
+export function evalArrayExpr(expr: ArrayExpr, env: Environment): RuntimeVal {
+  const elements: RuntimeVal[] = [];
+  for (const element of expr.elements) {
+    elements.push(evaluate(element, env));
+  }
+  return MK_ARRAY(elements);
 }

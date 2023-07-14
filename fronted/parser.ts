@@ -13,6 +13,7 @@ import {
   MemberExpr,
   StringLiteral,
   FunctionDeclaration,
+  ArrayExpr,
 } from "./ast";
 import { Token, TokenType, tokenize } from "./lexer";
 
@@ -144,6 +145,9 @@ export default class Parser {
   }
 
   private parseObjectExpr(): Expr {
+    if (this.at().type === TokenType.OpenBracket) {
+      return this.parseArrayExpr();
+    }
     if (this.at().type !== TokenType.OpenBrace) {
       return this.parseAdditiveExpr();
     }
@@ -174,12 +178,32 @@ export default class Parser {
       if (this.at().type != TokenType.CloseBrace) {
         this.expect(
           TokenType.Comma,
-          "Expected comma or closing bracket following property"
+          "Expected comma or closing brace following property"
         );
       }
     }
     this.expect(TokenType.CloseBrace, "Object literal missing closing brace.");
     return { kind: "ObjectLiteral", properties } as ObjectLiteral;
+  }
+
+  private parseArrayExpr(): Expr {
+    this.eat();
+    const elements: Expr[] = [];
+    while (this.notEOF() && this.at().type !== TokenType.CloseBracket) {
+      elements.push(this.parseExpr());
+
+      if (this.at().type != TokenType.CloseBracket) {
+        this.expect(
+          TokenType.Comma,
+          "Expected comma or closing bracket following property"
+        );
+      }
+    }
+    this.expect(TokenType.CloseBracket, "ArrayExpr missing closing bracket.");
+    return {
+      kind: "ArrayExpr",
+      elements,
+    } as ArrayExpr;
   }
 
   private parseAdditiveExpr(): Expr {

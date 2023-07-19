@@ -3,6 +3,7 @@ export type NodeType =
   | "Program"
   | "VarDeclaration"
   | "FunctionDeclaration"
+  | "ForStatement"
   // expressions
   | "AssignmentExpr"
   | "MemberExpr"
@@ -35,6 +36,14 @@ export interface FunctionDeclaration extends Stmt {
   kind: "FunctionDeclaration";
   parameters: string[];
   name: string;
+  body: Stmt[];
+}
+
+export interface ForStatement extends Stmt {
+  kind: "ForStatement";
+  init: Expr;
+  test: Expr;
+  update: Expr;
   body: Stmt[];
 }
 

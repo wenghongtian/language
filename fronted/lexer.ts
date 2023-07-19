@@ -7,6 +7,7 @@ export enum TokenType {
   BinaryOperator,
   Let,
   Fn,
+  For,
   Const,
   Semicolon,
   Colon, //:
@@ -24,6 +25,7 @@ const KEYWORDS: Record<string, TokenType> = {
   let: TokenType.Let,
   const: TokenType.Const,
   fn: TokenType.Fn,
+  for: TokenType.For,
 };
 
 export interface Token {
@@ -81,7 +83,9 @@ export function tokenize(sourceCode: string): Token[] {
       src[0] == "-" ||
       src[0] == "+" ||
       src[0] == "/" ||
-      src[0] == "%"
+      src[0] == "%" ||
+      src[0] == ">" ||
+      src[0] == "<"
     ) {
       tokens.push(token(src.shift()!, TokenType.BinaryOperator));
     } else if (src[0] == "=") {

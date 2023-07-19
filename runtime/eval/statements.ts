@@ -1,11 +1,12 @@
 import {
+  ForStatement,
   FunctionDeclaration,
   Program,
   VarDeclaration,
 } from "../../fronted/ast";
 import Environment from "../environment";
 import { evaluate } from "../interpreter";
-import { RuntimeVal, MK_NULL, FunctionValue } from "../values";
+import { RuntimeVal, MK_NULL, FunctionValue, BooleanVal } from "../values";
 
 export function evalProgram(program: Program, env: Environment): RuntimeVal {
   let lastEvaluated: RuntimeVal = MK_NULL();
@@ -38,4 +39,19 @@ export function evalFunctionDeclaration(
     body: declaration.body,
   } as FunctionValue;
   return env.declareVar(declaration.name, fn, true);
+}
+
+export function evalForStatement(stmt: ForStatement, env: Environment) {
+  env = new Environment(env);
+  const { init, test, update, body } = stmt;
+  evaluate(init, env);
+  while ((evaluate(test, env) as BooleanVal).value) {
+    const forEnv = new Environment(env);
+    for (const bodyStmt of body) {
+      evaluate(bodyStmt, forEnv);
+    }
+    evaluate(update, env);
+  }
+
+  return MK_NULL();
 }

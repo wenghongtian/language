@@ -14,6 +14,7 @@ import {
   StringLiteral,
   FunctionDeclaration,
   ArrayExpr,
+  ForStatement,
 } from "./ast";
 import { Token, TokenType, tokenize } from "./lexer";
 
@@ -45,9 +46,58 @@ export default class Parser {
         return this.parseVarDeclaration();
       case TokenType.Fn:
         return this.parseFunctionDeclaration();
+      case TokenType.For:
+        return this.parseForStatement();
       default:
         return this.parseExpr();
     }
+  }
+
+  private parseForStatement(): Stmt {
+    this.eat();
+    this.expect(TokenType.OpenParen, "Expected openParen after for");
+    let init: Expr;
+    if (
+      this.at().type === TokenType.Let ||
+      this.at().type === TokenType.Const
+    ) {
+      init = this.parseStmt();
+    } else {
+      init = this.parseExpr();
+      this.expect(
+        TokenType.Semicolon,
+        "The init property of for must end with semicolon"
+      );
+    }
+    const test = this.parseExpr();
+    this.expect(
+      TokenType.Semicolon,
+      "The test property of for must end with semicolon"
+    );
+    const update = this.parseExpr();
+    this.expect(
+      TokenType.CloseParen,
+      "The update property of for must end with closeParen"
+    );
+    const body: Stmt[] = [];
+    this.expect(
+      TokenType.OpenBrace,
+      "The body of for must start with open brace"
+    );
+    while (this.at().type !== TokenType.CloseBrace) {
+      body.push(this.parseStmt());
+    }
+    this.expect(
+      TokenType.CloseBrace,
+      "The body of for must start with close brace"
+    );
+    return {
+      kind: "ForStatement",
+      test,
+      init,
+      body,
+      update,
+    } as ForStatement;
   }
 
   private parseFunctionDeclaration(): Stmt {
@@ -208,8 +258,22 @@ export default class Parser {
 
   private parseAdditiveExpr(): Expr {
     let left = this.parseMultiplicitaveExpr();
-    while (this.at().value === "+" || this.at().value === "-") {
-      const operator = this.eat().value;
+    while (
+      this.at().value === "+" ||
+      this.at().value === "-" ||
+      this.at().value === ">" ||
+      this.at().value === "<" ||
+      this.at().value === "<=" ||
+      this.at().value === ">="
+    ) {
+      let operator = this.eat().value;
+      if (
+        (operator === ">" || operator === "<") &&
+        this.notEOF() &&
+        this.at().type === TokenType.Equals
+      ) {
+        operator += this.eat().value;
+      }
       const right = this.parseMultiplicitaveExpr();
       left = {
         kind: "BinrayExpr",

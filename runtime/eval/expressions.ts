@@ -23,6 +23,7 @@ import {
   ObjectVal,
   MK_ARRAY,
   ArrayValue as ArrayVal,
+  MK_BOOL,
 } from "../values";
 
 export function evaluateBinaryExpr(
@@ -33,11 +34,27 @@ export function evaluateBinaryExpr(
   const rhs = evaluate(binop.right, env);
 
   if (lhs.type === "number" && rhs.type === "number") {
-    return evalNumericBinaryExpr(
-      lhs as NumberVal,
-      rhs as NumberVal,
-      binop.operator
-    );
+    switch (binop.operator) {
+      case "+":
+      case "-":
+      case "*":
+      case "/":
+      case "%":
+        return evalNumericBinaryExpr(
+          lhs as NumberVal,
+          rhs as NumberVal,
+          binop.operator
+        );
+      case ">":
+      case "<":
+      case ">=":
+      case "<=":
+        return evalCompareBinaryExpr(
+          lhs as NumberVal,
+          rhs as NumberVal,
+          binop.operator
+        );
+    }
   }
   if (
     lhs.type === "string" &&
@@ -61,6 +78,17 @@ export function evalNumericBinaryExpr(
   else if (operator == "/") result = lhs.value / rhs.value;
   else result = lhs.value % rhs.value;
   return MK_NUMBER(result);
+}
+
+export function evalCompareBinaryExpr(
+  lhs: NumberVal,
+  rhs: NumberVal,
+  operator: string
+) {
+  let result = false;
+  if (operator === ">") result = lhs.value > rhs.value;
+  else if (operator === "<") result = lhs.value < rhs.value;
+  return MK_BOOL(result);
 }
 
 export function evalStringAddExpr(lhs: StringVal, rhs: StringVal) {
@@ -155,7 +183,10 @@ export function evalMemberExpr(expr: MemberExpr, env: Environment): RuntimeVal {
       console.error(`Object expected string as key, but got `, property);
       process.exit(0);
     }
-    return (object as ObjectVal).properties.get((property as StringVal).value) || MK_NULL();
+    return (
+      (object as ObjectVal).properties.get((property as StringVal).value) ||
+      MK_NULL()
+    );
   }
   const object = evalMemberExpr(expr.object as MemberExpr, env);
 
@@ -170,8 +201,7 @@ export function evalMemberExpr(expr: MemberExpr, env: Environment): RuntimeVal {
     }
 
     const value =
-      (object as ArrayVal).elements[(property as NumberVal).value] ||
-      MK_NULL();
+      (object as ArrayVal).elements[(property as NumberVal).value] || MK_NULL();
 
     return value;
   }

@@ -3,6 +3,7 @@ import {
   AssignmentExpr,
   BinrayExpr,
   CallExpr,
+  ForStatement,
   FunctionDeclaration,
   Identifier,
   MemberExpr,
@@ -24,6 +25,7 @@ import {
   evaluateBinaryExpr,
 } from "./eval/expressions";
 import {
+  evalForStatement,
   evalFunctionDeclaration,
   evalProgram,
   evalVarDeclaration,
@@ -53,6 +55,8 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
       return evaluateBinaryExpr(astNode as BinrayExpr, env);
     case "Program":
       return evalProgram(astNode as Program, env);
+    case "ForStatement":
+      return evalForStatement(astNode as ForStatement, env);
     case "VarDeclaration":
       return evalVarDeclaration(astNode as VarDeclaration, env);
     case "FunctionDeclaration":
@@ -63,6 +67,7 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
       return evalMemberExpr(astNode as MemberExpr, env);
     case "ArrayExpr":
       return evalArrayExpr(astNode as ArrayExpr, env);
+
     default:
       console.error(
         "This AST Node has not yet been setup for interpretation.",

@@ -87,9 +87,26 @@ export function tokenize(sourceCode: string): Token[] {
       src[0] == ">" ||
       src[0] == "<"
     ) {
-      tokens.push(token(src.shift()!, TokenType.BinaryOperator));
+      let char = src.shift()!;
+      //@ts-ignore
+      if ((char == "<" || char == ">") && src.length > 0 && src[0] == "=") {
+        char += src.shift()!;
+      }
+      if (src.length > 0 && src[0] == "+" && char == "+") {
+        char += src.shift()!;
+      }
+      if (src.length > 0 && src[0] == "-" && char == "-") {
+        char += src.shift()!;
+      }
+      tokens.push(token(char, TokenType.BinaryOperator));
     } else if (src[0] == "=") {
-      tokens.push(token(src.shift()!, TokenType.Equals));
+      let char = src.shift()!;
+      if (src[0] == "=") {
+        char += src.shift()!;
+        tokens.push(token(char, TokenType.BinaryOperator));
+      } else {
+        tokens.push(token(char, TokenType.Equals));
+      }
     } else {
       if (isInt(src[0])) {
         let num = "";

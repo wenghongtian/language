@@ -5,6 +5,7 @@ export type NodeType =
   | "FunctionDeclaration"
   | "ForStatement"
   // expressions
+  | "UpdateExpr"
   | "AssignmentExpr"
   | "MemberExpr"
   | "CallExpr"
@@ -102,4 +103,10 @@ export interface StringLiteral extends Expr {
 export interface ArrayExpr extends Expr {
   kind: "ArrayExpr";
   elements: Expr[];
+}
+
+export interface UpdateExpr extends Expr {
+  kind: "UpdateExpr";
+  operator: string;
+  arg: Expr;
 }

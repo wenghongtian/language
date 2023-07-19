@@ -6,8 +6,10 @@ import {
   Identifier,
   MemberExpr,
   ObjectLiteral,
+  UpdateExpr,
   VarDeclaration,
 } from "../../fronted/ast";
+import { TokenType } from "../../fronted/lexer";
 import Environment from "../environment";
 import { evaluate } from "../interpreter";
 import {
@@ -88,6 +90,8 @@ export function evalCompareBinaryExpr(
   let result = false;
   if (operator === ">") result = lhs.value > rhs.value;
   else if (operator === "<") result = lhs.value < rhs.value;
+  else if (operator === "<=") result = lhs.value <= rhs.value;
+  else if (operator === ">=") result = lhs.value >= rhs.value;
   return MK_BOOL(result);
 }
 
@@ -107,14 +111,30 @@ export function evalAssignment(
   node: AssignmentExpr,
   env: Environment
 ): RuntimeVal {
-  if (node.assigne.kind !== "Identifier") {
-    console.error(
-      `Invalid LHS inside assign expr ${JSON.stringify(node.assigne)}.`
-    );
-    process.exit();
+  if (node.assigne.kind === "Identifier") {
+    const varname = (node.assigne as Identifier).symbol;
+    return env.assignVar(varname, evaluate(node.value, env));
   }
-  const varname = (node.assigne as Identifier).symbol;
-  return env.assignVar(varname, evaluate(node.value, env));
+  if (node.assigne.kind === "MemberExpr") {
+    const assigne = node.assigne as MemberExpr;
+    const obj: ObjectVal =
+      assigne.object.kind === "Identifier"
+        ? (env.lookupVar((assigne.object as Identifier).symbol) as ObjectVal)
+        : (evalMemberExpr(assigne.object as MemberExpr, env) as ObjectVal);
+    const property = assigne.property;
+    const key =
+      property.kind === "Identifier"
+        ? (property as Identifier).symbol
+        : (evaluate(assigne.property, env) as StringVal).value;
+    const val = evaluate(node.value, env);
+    obj.properties.set(key, val);
+    return val;
+  }
+
+  console.error(
+    `Invalid LHS inside assign expr ${JSON.stringify(node.assigne)}.`
+  );
+  process.exit();
 }
 
 export function evalObjectExpr(
@@ -228,3 +248,8 @@ export function evalArrayExpr(expr: ArrayExpr, env: Environment): RuntimeVal {
   }
   return MK_ARRAY(elements);
 }
+
+// export function evalUpdateExpr(
+//   expr: UpdateExpr,
+//   env: Environment
+// ): RuntimeVal {}

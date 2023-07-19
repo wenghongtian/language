@@ -9,6 +9,7 @@ async function run() {
   const env = new Environment();
   const source = readFileSync("./input.js", { encoding: "utf-8" });
   const program = parser.produceAst(source as string);
+  console.dir(program, { depth: null });
   const result = evaluate(program, env);
   console.log(result);
 }
@@ -36,4 +37,4 @@ async function main() {
 }
 
 // run();
-run()
+run();

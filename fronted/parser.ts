@@ -15,6 +15,7 @@ import {
   FunctionDeclaration,
   ArrayExpr,
   ForStatement,
+  UpdateExpr,
 } from "./ast";
 import { Token, TokenType, tokenize } from "./lexer";
 
@@ -303,6 +304,19 @@ export default class Parser {
     return left;
   }
 
+  private parseUpdateExpr(arg: Expr): Expr {
+    if (this.at().value == "++" || this.at().value == "--") {
+      const operator = this.eat().value;
+      return {
+        kind: "UpdateExpr",
+        arg,
+        operator,
+      } as UpdateExpr;
+    } else {
+      return arg;
+    }
+  }
+
   private parseCallMemberExpr(): Expr {
     const member = this.parseMemberExpr();
     if (this.at().type == TokenType.OpenParen) {
@@ -379,6 +393,17 @@ export default class Parser {
         computed,
       } as MemberExpr;
     }
+
+    if (
+      object.kind !== "StringLiteral" &&
+      object.kind !== "NumbericLiteral" &&
+      object.kind !== "CallExpr"
+    ) {
+      if (this.notEOF() && this.at().type === TokenType.BinaryOperator) {
+        return this.parseUpdateExpr(object);
+      }
+    }
+
     return object;
   }
 

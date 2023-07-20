@@ -249,7 +249,47 @@ export function evalArrayExpr(expr: ArrayExpr, env: Environment): RuntimeVal {
   return MK_ARRAY(elements);
 }
 
-// export function evalUpdateExpr(
-//   expr: UpdateExpr,
-//   env: Environment
-// ): RuntimeVal {}
+export function evalUpdateExpr(expr: UpdateExpr, env: Environment): RuntimeVal {
+  if (expr.arg.kind === "Identifier") {
+    const arg = expr.arg as Identifier;
+    const val = env.lookupVar(arg.symbol);
+    if (val.type == "number") {
+      const numVal = val as NumberVal;
+      if (expr.operator == "++") {
+        numVal.value++;
+      } else if (expr.operator == "--") {
+        numVal.value--;
+      }
+      return numVal;
+    }
+
+    console.error("UpdateExpr only can update number");
+    process.exit(0);
+  } else {
+    const arg = expr.arg as MemberExpr;
+    const objVal =
+      arg.object.kind === "Identifier"
+        ? (env.lookupVar((arg.object as Identifier).symbol) as ObjectVal)
+        : (evaluate(arg.object, env) as ObjectVal);
+    const key = arg.computed
+      ? (evaluate(arg.property, env) as StringVal).value
+      : (arg.property as Identifier).symbol;
+    if (!objVal.properties.has(key)) {
+      console.error("Cannot update null");
+      process.exit(0);
+    }
+
+    if (typeof objVal.properties.get(key)!.type === "number") {
+      const val = objVal.properties.get(key) as NumberVal;
+      if (expr.operator == "++") {
+        val.value++;
+      } else if (expr.operator == "--") {
+        val.value--;
+      }
+      return val;
+    }
+
+    console.error("UpdateExpr only can update number");
+    process.exit(0);
+  }
+}

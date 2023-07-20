@@ -12,6 +12,7 @@ import {
   Program,
   Stmt,
   StringLiteral,
+  UpdateExpr,
   VarDeclaration,
 } from "../fronted/ast";
 import Environment from "./environment";
@@ -22,6 +23,7 @@ import {
   evalIdentifier,
   evalMemberExpr,
   evalObjectExpr,
+  evalUpdateExpr,
   evaluateBinaryExpr,
 } from "./eval/expressions";
 import {
@@ -67,6 +69,8 @@ export function evaluate(astNode: Stmt, env: Environment): RuntimeVal {
       return evalMemberExpr(astNode as MemberExpr, env);
     case "ArrayExpr":
       return evalArrayExpr(astNode as ArrayExpr, env);
+    case "UpdateExpr":
+      return evalUpdateExpr(astNode as UpdateExpr, env);
 
     default:
       console.error(

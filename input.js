@@ -1,5 +1,3 @@
-const foo = {
-  bar: {a:1}
-};
-foo.bar.a = 3
-foo.c
+for(let i = 10; i >0; i--){
+  print(i)
+}
